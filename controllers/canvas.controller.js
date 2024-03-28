@@ -2,9 +2,12 @@ var CanvasModel = require('../models/canvas.model');
 
 const createCanvas = function (req, res, next) {
   var canvas = new CanvasModel({
+    name: req.body.name,
     content: req.body.content,
+    width: req.body.width,
+    height: req.body.height
   });
-  canvas.save()
+  CanvasModel.create(canvas)
     .then((canvas) => {
       return res.status(201).json(canvas);
     })
@@ -16,6 +19,9 @@ const createCanvas = function (req, res, next) {
 const getCanvasList = function (req, res, next) {
   CanvasModel.find()
     .then((canvasList) => {
+      if (canvasList.length === 0) { // Verificar si la lista está vacía
+        return res.status(404).json({ message: "No canvases were found" });
+      }
       res.json(canvasList);
     })
     .catch((error) => {
@@ -26,6 +32,7 @@ const getCanvasList = function (req, res, next) {
 const getCanvas = function (req, res, next) {
   CanvasModel.findById(req.params.id)
     .then((canvas) => {
+      console.log(canvas);
       if (!canvas) {
         return res.status(404).json({ message: "No such canvas" });
       }
